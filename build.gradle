@@ -1,0 +1,59 @@
+// [실습] 순수 자바로 이해하는 IoC·DI·AOP — 스프링 없이 자바 표준 라이브러리만 쓴다
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 정책 계산을 확인하는 테스트에만 쓴다 (실습 본문에는 필요 없다)
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+// 단계별 실행 태스크 — 예: ./gradlew -q step1   (Windows: gradlew.bat -q step1)
+def labMains = [
+    step1         : 'com.example.lab.step1.LoanApp',
+    step1Solution : 'com.example.lab.step1.solution.LoanApp',
+    step2a        : 'com.example.lab.step2a.LoanApp',
+    step2b        : 'com.example.lab.step2b.LoanApp',
+    step3         : 'com.example.lab.step3.LoanApp',
+    step3Solution : 'com.example.lab.step3.solution.LoanApp',
+    step4         : 'com.example.lab.step4.LoanApp',
+    step4Solution : 'com.example.lab.step4.solution.FakePolicyApp',
+    step5a        : 'com.example.lab.step5a.LoanApp',
+    step5b        : 'com.example.lab.step5b.LoanApp',
+    step5bSolution: 'com.example.lab.step5b.solution.LoanApp',
+]
+labMains.each { taskName, className ->
+    tasks.register(taskName, JavaExec) {
+        group = 'lab'
+        description = "${className} 실행"
+        classpath = sourceSets.main.runtimeClasspath
+        mainClass = className
+        jvmArgs '-Dstdout.encoding=UTF-8'
+    }
+}
