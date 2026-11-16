@@ -1,6 +1,6 @@
 package com.example.lab.domain;
 
-// 도서관 회원
+// 쇼핑몰 회원
 public class Member {
     private final Long id;
     private final String name;
